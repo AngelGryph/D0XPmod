@@ -1,0 +1,56 @@
+INCLUDE ~xpmod/functions/round_xp.tph~
+
+DEFINE_ACTION_FUNCTION adjust_thiefmage_xp
+  INT_VAR
+  percentage_modifier  = 100
+BEGIN
+  COPY_EXISTING ~xpbonus.2da~ ~override~
+    COUNT_2DA_COLS cols
+    COUNT_2DA_ROWS cols rows
+    READ_2DA_ENTRIES_NOW read_xpbonus cols
+    FOR (SET y = 0; y < rows; SET y += 1)
+    BEGIN
+      FOR (SET x = 1; x < cols; SET x += 1)
+      BEGIN
+        READ_2DA_ENTRY_FORMER read_xpbonus y x xp
+        PATCH_IF (IS_AN_INT xp && xp > 0)
+	BEGIN
+          SET xp = xp * percentage_modifier / 100
+          LAUNCH_PATCH_FUNCTION round_xp
+            INT_VAR
+            xp
+            RET
+            xp = round_xp
+          END
+          SET_2DA_ENTRY_LATER write_xpbonus y x xp
+        END
+      END
+    END
+    SET_2DA_ENTRIES_NOW write_xpbonus cols
+    PRETTY_PRINT_2DA
+  BUT_ONLY_IF_IT_CHANGES
+END
+
+DEFINE_ACTION_FUNCTION no_learn_spell_xp
+BEGIN
+  COPY_EXISTING ~xpbonus.2da~ ~override~
+    COUNT_2DA_COLS cols
+    COUNT_2DA_ROWS cols rows
+    READ_2DA_ENTRIES_NOW read_xpbonus cols
+    FOR (SET y = 0; y < rows; SET y += 1)
+    BEGIN
+      READ_2DA_ENTRY_FORMER read_xpbonus y 0 action
+      PATCH_IF (~%action%~ STRING_EQUAL ~LEARN_SPELL~)
+      BEGIN
+        FOR (SET x = 1; x < cols; SET x += 1)
+        BEGIN
+          SET_2DA_ENTRY_LATER write_xpbonus y x 0
+        END
+      END
+      SET_2DA_ENTRIES_NOW write_xpbonus cols
+      PRETTY_PRINT_2DA
+    END
+  BUT_ONLY_IF_IT_CHANGES
+END
+
+

@@ -1,0 +1,19 @@
+INCLUDE ~xpmod/functions/round_xp.tph~
+
+DEFINE_ACTION_FUNCTION adjust_creature_xp
+	INT_VAR
+	percentage_modifier =	100
+BEGIN
+	COPY_EXISTING_REGEXP ~.+\.cre~ ~override~
+		SET xp = LONG_AT (0x0014) * percentage_modifier / 100
+		LAUNCH_PATCH_FUNCTION round_xp
+			INT_VAR
+			xp
+			RET
+			xp = round_xp
+		END
+		WRITE_LONG 0x14 xp
+	BUT_ONLY_IF_IT_CHANGES
+END
+
+

@@ -1,0 +1,27 @@
+DEFINE_PATCH_FUNCTION round_xp
+	INT_VAR
+	xp	= 0
+	RET
+	round_xp
+BEGIN
+	PATCH_IF xp < 5
+	BEGIN
+		round_xp = 5
+	END
+	ELSE
+	PATCH_IF xp < 1000
+	BEGIN
+		round_xp = xp / 5 * 5
+	END
+	ELSE
+	PATCH_IF xp < 10000
+	BEGIN
+		round_xp = xp / 25 * 25
+	END
+	ELSE
+	BEGIN
+		round_xp = xp / 125 * 125
+	END
+END
+
+

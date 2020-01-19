@@ -1,0 +1,67 @@
+INCLUDE ~xpmod/functions/round_xp.tph~
+
+DEFINE_ACTION_FUNCTION adjust_starting_xp_soa
+  INT_VAR
+  percentage_modifier	= 100
+BEGIN
+  COPY ~bgmain.exe~ ~bgmain.exe~
+    PATCH_MATCH %SOURCE_SIZE%
+    WITH
+      7839790
+      BEGIN
+        SET xp_offset = 0x006b7258
+      END
+      7843886
+      BEGIN
+        SET xp_offset = 0x006b6270
+      END
+      7381038
+      BEGIN
+        SET xp_offset = 0x0064f8b0
+      END
+      7385134
+      BEGIN
+        SET xp_offset = 0x006508b8
+      END
+      7417902
+      BEGIN
+        SET xp_offset = 0x00658970
+      END
+      7831598
+      BEGIN
+        SET xp_offset = 0x006b5258
+      END
+      DEFAULT
+        PATCH_FAIL ~Sorry, your version of bgmain.exe is unknown.~
+    END
+
+    SET xp = LONG_AT(xp_offset) * percentage_modifier / 100
+    LAUNCH_PATCH_FUNCTION round_xp
+      INT_VAR
+      xp
+      RET
+      xp = round_xp
+    END
+    WRITE_LONG xp_offset xp
+  BUT_ONLY_IF_IT_CHANGES
+END
+
+
+DEFINE_ACTION_FUNCTION adjust_starting_xp_tob
+  INT_VAR
+  percentage_modifier	= 100
+BEGIN
+  COPY ~bgmain.exe~ ~bgmain.exe~
+    SET xp_offset = 0x006b7264
+    SET xp = LONG_AT(xp_offset) * percentage_modifier / 100
+    LAUNCH_PATCH_FUNCTION round_xp
+      INT_VAR
+      xp
+      RET
+      xp = round_xp
+    END
+    WRITE_LONG xp_offset xp
+  BUT_ONLY_IF_IT_CHANGES
+END
+
+
